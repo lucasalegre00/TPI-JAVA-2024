@@ -26,6 +26,7 @@ public class EventoServiceImpl implements EventoService {
     private OrganizacionService organizacionService;
     private ChefService chefService;
     private ResenaService resenaService;
+    private Evento evento;
 
     public EventoServiceImpl(ParticipanteService participanteService, OrganizacionService organizacionService, ChefService chefService, ResenaService resenaService) {
         this.participanteService = participanteService;
@@ -34,29 +35,27 @@ public class EventoServiceImpl implements EventoService {
         this.resenaService = resenaService;
     }
 
+    public Evento buscarEventoPorId(UUID idEvento) {
+        for (Evento evento : organizacionService.getEvento()) {
+            if (evento.getId().equals(idEvento)) {
+                return evento; // Si encuentra el evento, lo retorna
+            }
+        }
+        throw new NoSuchElementException("No existe el evento con ID: " + idEvento);
+    }
+
 
     public void inscribirParticipante(UUID idEvento1) {   //recibe el id del evento
         Participante participante = participanteService.registrarParticipante();
         boolean existeEvento = Boolean.FALSE;
-
-        for (Evento evento : organizacionService.getEvento()) {
-
-            if (evento.getId().equals(idEvento1)) {
-                    existeEvento = Boolean.TRUE;
-                if (evento.getParticipantes().size() < evento.getCapacidad()) {
-                    participante.getEventos().add(evento);
-                    evento.getParticipantes().put(participante.getDni(), participante);
-                    System.out.println("Participante asignado al evento");
-                } else {
-                    System.out.println("No se puede registrar al participante. Capacidad máxima alcanzada.");
-                }
-
+        Evento evento = buscarEventoPorId(idEvento1);
+            if (evento.getParticipantes().size() < evento.getCapacidad()) {
+                participante.getEventos().add(evento);
+                evento.getParticipantes().put(participante.getDni(), participante);
+                System.out.println("Participante asignado al evento");
+            } else {
+                System.out.println("No se puede registrar al participante. Capacidad máxima alcanzada.");
             }
-            if(!existeEvento){
-                throw new NoSuchElementException("No existe el evento");
-            }
-            break;
-        }
 
     }
     public void inscribirChef(UUID idEvento1) {
@@ -150,10 +149,8 @@ public class EventoServiceImpl implements EventoService {
         if (!existeElParticipante){
             throw new NoSuchElementException("No existe el participante");
         }
-        for (Evento evento: organizacionService.getEvento()){
-            if(evento.getId().equals(idEvento)){
-                esEventoEncontrado= Boolean.TRUE;
 
+                Evento evento = buscarEventoPorId(idEvento);
                 if (evento.getParticipantes().size() < evento.getCapacidad()) {
                     participante.getEventos().add(evento);
                     evento.getParticipantes().put(participante.getDni(), participante);
@@ -161,15 +158,8 @@ public class EventoServiceImpl implements EventoService {
                 } else {
                     System.out.println("No se puede registrar al participante. Capacidad máxima alcanzada.");
                 }
-                break;
             }
 
-
-    }
-        if(!esEventoEncontrado){
-            throw new NoSuchElementException("No existe el evento");
-        }
-    }
 
     @Override
     public void listarEvento() {
@@ -272,14 +262,6 @@ public class EventoServiceImpl implements EventoService {
         return null;
     }
 
-
-
-
-
-
-
-
-
     @Override
     public void inscribirChefEvento(UUID idEvento, int dni){
         Chef chef=null;
@@ -331,22 +313,11 @@ public class EventoServiceImpl implements EventoService {
         if (!existeElParticipante){
             throw new NoSuchElementException("No existe el participante");
         }
-        for (Evento evento: organizacionService.getEvento()){
-            if(evento.getId().equals(idEvento3)){
-                esEventoEncontrado= Boolean.TRUE;
+                Evento evento = buscarEventoPorId(idEvento3);
                 Resena reseña = resenaService.dejarResena(participante);
                 evento.getResenas().add(reseña);
                 System.out.println("Reseña añadida por " + participante.getNombre() + " al evento " + evento.getNombre() );
-                } else {
-                    System.out.println("No existe el evento.");
                 }
-                break;
-            }
-
-
-        }
-
-
 
     }
 

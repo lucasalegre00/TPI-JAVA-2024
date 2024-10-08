@@ -87,6 +87,9 @@ public class Evento {
     public void setParticipantes(Map<Long, Participante> participantes) {
         this.participantes = participantes;
     }
+
+
+
     @Override
     public String toString() {
 
